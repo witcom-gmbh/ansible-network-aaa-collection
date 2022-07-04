@@ -1,0 +1,50 @@
+id = spawnd {
+    listen = { port = {{ tac_plus_listen_port }} }
+    spawn = {
+        instances min = 1
+        instances max = 10
+    }
+    background = no
+}
+
+id = tac_plus {
+    {% if tac_plus_debug_flags | default([]) | length > 1 %}debug = {% for flag in tac_plus_debug_flags %}{{ flag }}{{ " " if not loop.last }}{% endfor %}{% endif %}
+
+    log = stdout {
+        destination = ">/proc/1/fd/1"
+    }
+    
+    log = stderr {
+        destination = ">/dev/stderr"
+    }
+    
+    log = file {
+        destination = /var/log/tac_plus.log
+    }
+
+    {% if tac_plus_ldap_enabled | default('False') | bool -%}
+    mavis module = external {
+         setenv LDAP_HOSTS = "{% for host in tac_plus_ldap_hosts | default([]) %}{{ host }}{{ " " if not loop.last }}{% endfor %}"
+         setenv LDAP_BASE = "{{ tac_plus_ldap_base }}"
+         setenv LDAP_USER = "{{ tac_plus_ldap_bind_user }}"
+         setenv LDAP_PASSWD = "{{ tac_plus_ldap_bind_password }}"
+         setenv LDAP_SERVER_TYPE = "{{ tac_plus_ldap_type }}"
+         {% if tac_plus_ldap_ad_group_prefix -%}
+         setenv AD_GROUP_PREFIX = "{{ tac_plus_ldap_ad_group_prefix }}"
+         setenv REQUIRE_AD_GROUP_PREFIX = {% if tac_plus_ldap_require_ad_group_prefix | default('False') | bool %}1{% else %}0{% endif %}{% endif +%}
+         {% if tac_plus_ldap_use_tls | default('False') | bool %}setenv USE_TLS = 1{% endif +%}
+         exec = /tacacs/lib/mavis/mavis_tacplus_ldap.pl
+    }
+    {% endif %}
+
+    login backend = mavis
+    user backend = mavis
+    pap backend = mavis
+
+    # Seems to have problems with STDOUT, so we'll log to STDERR as well (this works fine!)
+    authentication log = stderr
+    authorization log = stderr
+    accounting log = stderr
+
+    include = /etc/tac_plus/tac_user.cfg
+}

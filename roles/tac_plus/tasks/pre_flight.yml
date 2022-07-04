@@ -1,0 +1,15 @@
+
+- name: Look for required variables
+  ansible.builtin.fail:
+    msg: "Not all required variables are set !!"
+  when:  
+  -  tac_plus_user_config_src | default('', true) | trim == ''
+  -  tac_plus_instance | default('', true) | trim == ''
+
+- name: Gather the packager facts
+  ansible.builtin.package_facts:
+
+- name: Check if podman is present
+  ansible.builtin.fail:
+    msg: PODMAN is not installed !!
+  when: ('podman' not in ansible_facts.packages) and (tac_plus_deployment | default('podman') == 'podman')

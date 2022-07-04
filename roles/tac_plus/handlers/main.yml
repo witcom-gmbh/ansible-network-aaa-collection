@@ -1,0 +1,14 @@
+---
+# handlers file for tac_plus
+
+- name: enable-systemd-service
+  ansible.builtin.systemd:
+    name: "{{ _tac_plus_service_unit }}"
+    daemon_reload: yes
+    enabled: yes 
+    state: started
+
+- name: restart tac_plus
+  ansible.builtin.service:
+    name: "{{ _tac_plus_service_unit }}"
+    state: restarted

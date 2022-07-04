@@ -1,0 +1,33 @@
+---
+# defaults file for tac_plus
+
+tac_plus_instance:
+
+#how tac_plus will be deployed
+#currently only podman is possible ;-)
+tac_plus_deployment: "podman"
+
+tac_plus_config_dir: "/etc/tac_plus"
+tac_plus_user_config_src: ""
+
+#podman specfic stuff
+tac_plus_container_repo: "some-repo.com/org"
+tac_plus_container_image: "tac_plus"
+tac_plus_container_image_version: "alpine-202205051820"
+
+#generic stuff
+tac_plus_listen_port: 49
+tac_plus_debug_flags: []
+
+tac_plus_ldap_enabled: False
+tac_plus_ldap_hosts: []
+tac_plus_ldap_base: "dc=some,dc=net"
+tac_plus_ldap_bind_user: "lookup@some.net"
+tac_plus_ldap_bind_password: "verysecret"
+tac_plus_ldap_type: "microsoft"
+tac_plus_ldap_ad_group_prefix: "tac123"
+tac_plus_ldap_require_ad_group_prefix: True
+tac_plus_ldap_use_tls: false
+
+_tac_plus_config_dir: "{{ tac_plus_config_dir }}/{{ tac_plus_instance }}"
+_tac_plus_service_unit: "tac_plus_{{ tac_plus_instance }}"

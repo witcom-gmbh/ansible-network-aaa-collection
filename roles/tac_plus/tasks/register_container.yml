@@ -1,0 +1,34 @@
+- name: register container
+  block:
+  - name: Create and run tac_plus container
+    containers.podman.podman_container:
+      name: "tac_plus_{{ tac_plus_instance }}"
+      image: "{{ tac_plus_container_repo }}/{{ tac_plus_container_image }}:{{ tac_plus_container_image_version }}"
+      state: "started"
+      recreate: "no"
+      network: "host"
+      user: root
+      # this is not working with pod-man ansible - idempotency-problem
+      # all is beeing expanded to all capabilities, and so it always gives a diff
+      # cap_add:
+      #   - ALL
+      label:
+        process=tac_plus
+      memory: "1073741824"
+      memory_swap: "2147483648"
+      cpu_period: 100000 
+      # this is not working with pod-man ansible - idempotency-problem
+      #cpus: "1.0"
+      generate_systemd:
+        path: /etc/systemd/system
+        separator: ""
+        container_prefix: ""
+      volume:
+        - "{{ _tac_plus_config_dir }}:/etc/tac_plus:ro,z"
+    register: result
+    until: result is success
+    retries: 3
+    delay: 5
+    notify: enable-systemd-service
+
+  when: tac_plus_deployment | default('podman') == 'podman'

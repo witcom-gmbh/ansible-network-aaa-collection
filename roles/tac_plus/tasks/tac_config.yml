@@ -1,0 +1,102 @@
+# create config dir
+
+- name: Create configuration directory for tac_plus
+  ansible.builtin.file:
+    path: "{{ _tac_plus_config_dir }}"
+    state: directory
+    owner: "root"
+    group: "root"
+    mode: '0644'
+  
+- name: Create temporary directory for config-tests
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: tac_plus
+  check_mode: no  
+  register: tmp_config_dir
+
+- name: Create base-config for tests
+  ansible.builtin.template:
+    src: tac_base.cfg.j2
+    dest: "{{ tmp_config_dir.path }}/tac_plus.cfg"
+    owner: root
+    group: root
+    mode: '0644'
+  check_mode: no  
+
+- name: Copy user-config for tests
+  ansible.builtin.copy:
+    src: "{{ tac_plus_user_config_src }}"
+    dest: "{{ tmp_config_dir.path }}/tac_user.cfg"
+    owner: root
+    group: root
+    mode: '0644'
+  check_mode: no  
+
+# create one shot container for tests
+
+- name: podman-config-check
+  block:
+  - name: Run tac_plus config_Test container
+    containers.podman.podman_container:
+      name: "tac_plus_cfg_test_{{ tac_plus_instance }}"
+      image: "{{ tac_plus_container_repo }}/{{ tac_plus_container_image }}:{{ tac_plus_container_image_version }}"
+      state: "started"
+      recreate: "no"
+      network: "host"
+      cap_add:
+        - ALL
+      entrypoint: /tacacs/sbin/tac_plus
+      command:   
+        - -P
+        - /etc/tac_plus/tac_plus.cfg
+      detach: no
+      label:
+        process=tac_plus_config_test
+      memory: "100m"
+      cpus: "0.1"
+      rm: True
+      systemd: False
+      volume:
+        - "{{ tmp_config_dir.path }}:/etc/tac_plus:ro,z"
+    register: result
+
+#  - name: debug
+#    ansible.builtin.debug:
+#      msg: "{{ result }}"
+
+  rescue: 
+    - name: Clean-Up
+      ansible.builtin.file:
+        dest: "{{ tmp_config_dir.path }}"
+        state: absent
+
+  when: tac_plus_deployment | default('podman') == 'podman'
+
+- name: cleanup tmp-files
+  ansible.builtin.file:
+    dest: "{{ tmp_config_dir.path }}"
+    state: absent
+  check_mode: no 
+
+#if we got so far, the configuration is valid and we can create/update it
+
+- name: "Generate base-config in {{ _tac_plus_config_dir }}"
+  ansible.builtin.template:
+    src: tac_base.cfg.j2
+    dest: "{{ _tac_plus_config_dir }}/tac_plus.cfg"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: "restart tac_plus"  
+
+- name: "Copy user-config to {{ _tac_plus_config_dir }}"
+  ansible.builtin.copy:
+    src: "{{ tac_plus_user_config_src }}"
+    dest: "{{ _tac_plus_config_dir }}/tac_user.cfg"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: "restart tac_plus"  
+
+

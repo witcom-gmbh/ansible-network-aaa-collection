@@ -1,0 +1,17 @@
+---
+- name: Test 01
+  hosts: all
+  serial: 1 
+  remote_user: "conductor"
+  become: yes
+  become_method: sudo  
+  gather_facts: true
+  vars:
+    tac_plus_user_config_src: "/workspaces/ansible-network-aaa-collection/tests/tac_user.cfg"
+    tac_plus_container_repo: "my-private-repo.org/aaa"
+    tac_plus_listen_port: "49"
+    tac_plus_instance: prod
+    tac_plus_debug_flags: []
+  roles:
+  - witcom.network_aaa.tac_plus
+  

@@ -1,0 +1,28 @@
+---
+# tasks file for tac_plus
+
+# init/sanity checks
+# check if podman is available
+# look for user config
+
+- name: Pre-Flight checks
+  include_tasks:
+    file: "pre_flight.yml"
+    apply:
+      tags: always
+  tags: always
+
+- name: Create directories
+  include_tasks:
+    file: "tac_config.yml"
+    apply:
+      tags: tac_config
+  tags: tac_config
+
+- name: Register container
+  include_tasks:
+    file: "register_container.yml"
+    apply:
+      tags: tac_container
+  tags: tac_container
+
