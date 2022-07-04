@@ -31,8 +31,10 @@ id = tac_plus {
          setenv LDAP_SERVER_TYPE = "{{ tac_plus_ldap_type }}"
          {% if tac_plus_ldap_ad_group_prefix -%}
          setenv AD_GROUP_PREFIX = "{{ tac_plus_ldap_ad_group_prefix }}"
-         setenv REQUIRE_AD_GROUP_PREFIX = {% if tac_plus_ldap_require_ad_group_prefix | default('False') | bool %}1{% else %}0{% endif %}{% endif +%}
-         {% if tac_plus_ldap_use_tls | default('False') | bool %}setenv USE_TLS = 1{% endif +%}
+         setenv REQUIRE_AD_GROUP_PREFIX = {% if tac_plus_ldap_require_ad_group_prefix | default('False') | bool %}1{% else %}0{% endif %}{% endif %}
+         
+         {%+ if tac_plus_ldap_use_tls | default('False') | bool %}setenv USE_TLS = 1{% endif %}
+
          exec = /tacacs/lib/mavis/mavis_tacplus_ldap.pl
     }
     {% endif %}

@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.2] - 2022-07-04
+
+### Fixed
+
+- Make templating compatible with older versions of jinja
+
 ## [0.1.1] - 2022-07-04
 
 ### Fixed
