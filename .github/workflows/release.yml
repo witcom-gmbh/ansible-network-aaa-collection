@@ -50,7 +50,7 @@ jobs:
         with:
           allowUpdates: false
           artifactErrorsFailBuild: true
-          artifacts: "witcom-witcom_mrtg-${{ steps.version.outputs.version }}.tar.gz"
+          artifacts: "witcom-network_aaa-${{ steps.version.outputs.version }}.tar.gz"
           tag: ${{ steps.tag_version.outputs.new_tag }}
           name: Release ${{ steps.tag_version.outputs.new_tag }}
           bodyFile: "CHANGELOG.md"
