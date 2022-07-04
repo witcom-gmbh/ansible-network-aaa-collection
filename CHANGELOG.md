@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.1] - 2022-07-04
+
+### Fixed
+
+- just a version bump
+
 ## [0.1.0] - 2022-07-04
 
 ### Added
