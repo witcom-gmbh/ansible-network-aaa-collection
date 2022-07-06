@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.3] - 2022-07-06
+
+### Fixed
+
+- Improved (re-)starting of container
+
 ## [0.1.2] - 2022-07-04
 
 ### Fixed

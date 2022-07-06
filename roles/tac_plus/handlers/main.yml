@@ -6,7 +6,7 @@
     name: "{{ _tac_plus_service_unit }}"
     daemon_reload: yes
     enabled: yes 
-    state: started
+    state: restarted
 
 - name: restart tac_plus
   ansible.builtin.service:
